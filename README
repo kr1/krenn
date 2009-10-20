@@ -1,20 +1,29 @@
 KRENN - diagrams
 
+1. WHAT IS KRENN?
 krenn diagrams are a way to visualize (and possibly navigate) a certain class of data. 
 appropriate data:
     - symmetric connected vertices of a graph.
     - items tagged with (partly) overlaying tags
 
-Usage:
+
+2. Usage:
 only svg:
 load krenn.svg in the browser
 
 in a html-file:
 load test_krenn.html to you're browser
 
-Configuration:
+
+3. Configuration:
 1. modify the configuration section of krenn.svg
 2. modify the source-code which is quite straight-forward
 
-Copyright christian woerner,2009 <christianworner@gmail.com>
+
+4. License
+GNU General Public License
+
+
+5. Copyright
+Copyright Christian Wörner,2009 <christianworner@gmail.com>
  
