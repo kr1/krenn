@@ -43,10 +43,10 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
      
     document.data = {"Archaeology":          [ 0, 92, 14, 35, 20, 22, 35, 37],
                      "Bioacoustics":         [92,  0, 47, 53, 30, 33, 45, 47],
-                     /*"CURIE":                [14, 47,  0, 73, 40, 44, 55, 57],
+                     "CURIE":                [14, 47,  0, 73, 40, 44, 55, 57],
                      "Dermatology":          [35, 53, 73,  0, 50, 55, 65, 67],
                      "Ethnology":            [20, 30, 40, 50,  0, 66, 75, 77],
-                     "Fricative consonant":  [22, 33, 44, 55, 66,  0, 85, 87],*/
+                     "Fricative consonant":  [22, 33, 44, 55, 66,  0, 85, 87],
                      "Gauge theory":         [35, 45, 55, 65, 75, 85,  0, 97],
                      "Hoffmann":             [37, 47, 57, 67, 77, 87,  97, 0]
                     }
@@ -351,12 +351,20 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
         } else if (document.diagram_type == 'flagpole'){
             var counter = 0;
             // first set vertical column of center-field
-            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.1 * Y , x2: Math.round(0.3 * X), y2: 0.99 * Y,color:get_color()});
+            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(0.3 * X), y2: Y,color:get_color()});
             var keys =get_keys(data).slice(1); 
+            weight_arr = data[get_keys(data)[0]].slice(1)
+            w_sum = sum_(weight_arr);
+            //alert(weight_arr)
+            Y_counter = 0.0 * Y
+                    
             for (i in keys){
                 // first the horizontal items
                 if (counter < num_its) {
-                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: (Y / num_its) * (counter + 0.7) + 0.02 * Y, x2: Math.round(0.8 * X), y2:(Y / num_its) * (counter + 1.7) - 0.02 *Y,color:get_color()});
+                    Y_offset = ((Y * 1.0/ w_sum ) * weight_arr[i]) * 0.88
+                    //alert(Y_offset)
+                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: Y_counter, x2: Math.round(0.8 * X), y2: Y_counter + Y_offset,color:get_color()});
+                    Y_counter = (Y_counter + Y_offset) + Y *  0.018
                 }
                 counter++    
 
@@ -371,14 +379,10 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
             for (i in keys){
                 // first the horizontal items
                 if (counter < num_its) {
-                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: (Y / num_its) * (counter + 1) + 0.02 * Y, x2: Math.round(0.8 * X), y2:(Y / num_its) * (counter + 2) - 0.02 *Y,color:get_color()});
-                    
+                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: (Y / (num_its-1)) * (counter + 0.6) + 0.02 * Y, x2: Math.round(0.8 * X), y2:(Y / (num_its-1)) * (counter + 1.6) - 0.02 *Y,color:get_color()});
                 }
                 counter++    
-
-
             }
-
             res_arr.push({id:get_keys(data)[1], x1: Math.round(0.7 * X), y1: 0.1 * Y , x2: Math.round(0.9 * X), y2: 0.99 * Y,color:get_color()});
             return res_arr
     }
