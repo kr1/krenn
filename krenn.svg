@@ -66,7 +66,7 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
       //* don't forget to include URLs for overlayed areas (in alphabetical order) 
       document.use_shift_click = true; //* turn off if you don't need it
       document.use_ctrl_click = true; //* turn off if you don't need it
-      document.diagram_type = 'flagpole' //other working options are: ["flagpole","shelve"]
+      document.diagram_type = 'shelve' //other working options are: ["flagpole","shelve"]
       document.data_urls = {"Archaeology":["http://en.wikipedia.org/wiki/Archaeology"],
                             "Bioacoustics":["http://en.wikipedia.org/wiki/Bioacoustics"],
                             "CURIE":["http://en.wikipedia.org/wiki/CURIE"],
@@ -196,6 +196,16 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
         }
         return [max_id,max_int]
     }
+    function max_weight(arr){
+        var max_int = 0;
+        for (i in arr){
+            if (arr[i] > max_int){
+                max_int = arr[i];
+            }
+        }
+        return max_int
+    }
+
 
     function get_keys(obj){
         var arr = [];
@@ -367,23 +377,39 @@ Copyright 2009, Christian Woerner <christianworner@gmail.com>.  All rights reser
                     Y_counter = (Y_counter + Y_offset) + Y *  0.018
                 }
                 counter++    
-
-
             }
             return res_arr
         } else if (document.diagram_type == 'shelve'){
+            var overlay_border = 0.23;
+            var left_border = 0.33;
+            var right_border = 0.66; 
             var counter = 0;
+            var weight_arr_1 = data[get_keys(data)[0]].slice(2)
+            var weight_arr_2 = data[get_keys(data)[1]].slice(2)
+            var max_1 = max_weight(weight_arr_1);
+            var max_2 = max_weight(weight_arr_2);
+            //alert(max_1 + ":" +max_2)
             // first set vertical column of both center-fields
-            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.1 * Y , x2: Math.round(0.3 * X), y2: 0.99 * Y,color:get_color()});
-            var keys =get_keys(data).slice(2); 
+            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(left_border * X), y2: 1.0 * Y,color:get_color()});
+            var keys = get_keys(data).slice(2); 
             for (i in keys){
+                var offset_1 = (overlay_border / max_1) * weight_arr_1[i]
+                //alert(offset_1);
+                var offset_2 = (overlay_border / max_2) * weight_arr_2[i]
+                var X_left_off = left_border - offset_1;
+                var X_right_off = right_border + offset_2;
                 // first the horizontal items
                 if (counter < num_its) {
-                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: (Y / (num_its-1)) * (counter + 0.6) + 0.02 * Y, x2: Math.round(0.8 * X), y2:(Y / (num_its-1)) * (counter + 1.6) - 0.02 *Y,color:get_color()});
+                    res_arr.push({id: keys[i], 
+                                  x1: Math.round(X_left_off * X), 
+                                  y1: (Y / (num_its - 1)) * (counter + 0.8) - 0.02 * Y, 
+                                  x2: Math.round(X_right_off * X), 
+                                  y2: (Y / (num_its-1)) * (counter + 1.6) - 0.02 *Y,
+                                  color:get_color()});
                 }
                 counter++    
             }
-            res_arr.push({id:get_keys(data)[1], x1: Math.round(0.7 * X), y1: 0.1 * Y , x2: Math.round(0.9 * X), y2: 0.99 * Y,color:get_color()});
+            res_arr.push({id:get_keys(data)[1], x1: Math.round(right_border * X), y1: 0.0 * Y , x2: Math.round(0.9 * X), y2: 1.0 * Y,color:get_color()});
             return res_arr
     }
 
