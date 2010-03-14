@@ -22,6 +22,7 @@ KRENN - diagrams
     there are currently 3 types of diagrams:
     3.1.1 type="flower":
        around a centerfield there are the connected fields.
+       <img src="http://github.com/kr1/krenn/raw/master/static/flower_type.png"/>
 
     3.1.2 type="flagpole"
         from the vertical centerfield on the right the connected fields overlay and continue to the right (overlays are proportional to the weight of the connection)
