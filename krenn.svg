@@ -52,7 +52,7 @@ Copyright 2009, Christian Woerner <christianworner{at[gmail]dot}com>.  All right
                     }
       document.unicolor = false; //* set this to a color (array of 3 numbers(0-255)) 
               //* you would like to be applied to all elements => [111,222,255]
-      //document.unicolor = [111,222,255];
+      //document.unicolor = [11,111,255];
       document.overlay_color = [244,244,244]; //this color is applied to all overlay-areas
       document.transparency = 0.5; // take a value between 0 and 1;
       //* these 2 functions are mappings from the ids (keys of the upper object) to 
@@ -66,7 +66,7 @@ Copyright 2009, Christian Woerner <christianworner{at[gmail]dot}com>.  All right
       //* don't forget to include URLs for overlayed areas (in alphabetical order) 
       document.use_shift_click = true; //* turn off if you don't need it
       document.use_ctrl_click = true; //* turn off if you don't need it
-      document.diagram_type = 'shelve' //other working options are: ["flagpole","shelve"]
+      document.diagram_type = 'flagpole' //working options are: ["flower", "flagpole", "shelve"]
       document.data_urls = {"Archaeology":["http://en.wikipedia.org/wiki/Archaeology"],
                             "Bioacoustics":["http://en.wikipedia.org/wiki/Bioacoustics"],
                             "CURIE":["http://en.wikipedia.org/wiki/CURIE"],
