@@ -17,7 +17,7 @@ Copyright 2009-2013, Christian Woerner <christianworner{at[gmail]dot}com>.  All 
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-console.log(12)
+
 data = {"Archaeology":          [0, 92, 14, 35, 120, 22, 35, 37],
         "Bioacoustics":         [92,  0, 47, 53, 30, 33, 99, 47],
         "Creationism":          [14, 47,  0, 73, 40, 44, 55, 57],

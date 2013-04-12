@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!--
+COPYRIGHT AND LICENSE
+Copyright 2009-2013, Christian Woerner <christianworner{at[gmail]dot}com>.  All rights reserved.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+-->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+         "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     onload="init();">
+
+
+<script xlink:href="/javascripts/data.js" />
+<script xlink:href="/javascripts/utils.js" />
+<script xlink:href="/javascripts/colors.js" />
+<script xlink:href="/javascripts/items.js" />
+<script xlink:href="/javascripts/square_positions.js" />
+<script xlink:href="/javascripts/init.js" />
+<script xlink:href="/javascripts/event_handlers.js" />
+<script id="mainscript" type="text/javascript"><![CDATA[
+    var SVG_NS ="http://www.w3.org/2000/svg";
+
+    // -------------------------- CONFIG --------------------------
+
+    // dimensions
+    document.X = 600;
+    document.Y = 300;
+
+    //* the data must be an Object with elements of the form
+    //* <ID>(also displayed onscreen) : <array of relation coefficients
+    //*      of the length of the elements in the data-object>
+    //*      (this results in redundant symmetric matrix)
+    //*        - this is currently not used and could be empty arrays
+    //*  the first element will be the center-element
+    //* NB: currently a maximum of 7 elements will be displayed
+
+    document.unicolor = false; //* set this to a color (array of 3 numbers(0-255))
+            //* you would like to be applied to all elements => [111,222,255]
+    //document.unicolor = [11,111,255];
+    document.overlay_color = [244,244,244]; //this color is applied to all overlay-areas
+    document.transparency = 0.5; // take a value between 0 and 1;
+    //* these 2 functions are mappings from the ids (the keys of the `data`-object) to
+    //* weblinks called upon the user clicking on an element
+    document.rewrite_ids_for_url = function(id){ return "http://localhost:8000/content_tags/search_by_tag?tag="+id}
+    document.rewrite_double_ids_for_url = function(idA,idB){return "http://localhost:8000/content_tags/search_by_tag?tags=" + [idA,idB].toSource()}
+    document.shift_click_fun = function(id){return "http://www." + id.replace(" ","") + ".com"};
+    document.shift_click_double_id_fun = function(idA,idB){return "http://www." + idA + idB + ".com"};
+    document.overlay_delimiter = "/";
+    //* this object can optionally hold alternative link-targets (click with ctrl-key pressed)
+    //* don't forget to include URLs for overlayed areas (in alphabetical order)
+    document.use_shift_click = true; //* turn off if you don't need it
+    document.use_ctrl_click = true; //* turn off if you don't need it
+    document.diagram_type = 'flagpole' //working options are: ["flower", "flagpole", "shelve"]
+
+]]></script>
+<g id="top_level" transform="translate(0, 0)" />
+</svg>
