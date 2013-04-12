@@ -57,5 +57,5 @@ KRENN - diagrams
 
 5.  **Copyright**
     
-    Copyright Christian Wörner,2009 <christianworner[at{gmail}dot]com>
+    Copyright Christian Wörner, 2009-2013 <christianworner[at{gmail}dot]com>
  

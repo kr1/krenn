@@ -25,13 +25,13 @@ Copyright 2009-2013, Christian Woerner <christianworner{at[gmail]dot}com>.  All 
      onload="init();">
 
 
-<script xlink:href="javascripts/data.js" />
-<script xlink:href="javascripts/utils.js" />
-<script xlink:href="javascripts/colors.js" />
-<script xlink:href="javascripts/items.js" />
-<script xlink:href="javascripts/square_positions.js" />
-<script xlink:href="javascripts/init.js" />
-<script xlink:href="javascripts/event_handlers.js" />
+<script xlink:href="/javascripts/data.js" />
+<script xlink:href="/javascripts/utils.js" />
+<script xlink:href="/javascripts/colors.js" />
+<script xlink:href="/javascripts/items.js" />
+<script xlink:href="/javascripts/square_positions.js" />
+<script xlink:href="/javascripts/init.js" />
+<script xlink:href="/javascripts/event_handlers.js" />
 <script id="mainscript" type="text/javascript"><![CDATA[
     var SVG_NS ="http://www.w3.org/2000/svg";
 
