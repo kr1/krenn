@@ -12,10 +12,10 @@ KRENN - diagrams
 
 2.  **Usage/Example:**
     example for plain svg:
-    load krenn.svg in the browser
+    open `krenn_self_contained.svg` in your browser
 
     svg embedded in a html-file:
-    load test_krenn.html to you're browser
+    open `example.html` in your browser
 
 
 3.  **Configuration:**

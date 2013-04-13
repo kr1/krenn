@@ -1,0 +1,493 @@
+<?xml version="1.0"?>
+<!-- 
+COPYRIGHT AND LICENSE
+Copyright 2009, Christian Woerner <christianworner{at[gmail]dot}com>.  All rights reserved.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+-->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+         "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+     onload="init();">
+
+<script id="mainscript" type="text/javascript"><![CDATA[
+    var SVG_NS ="http://www.w3.org/2000/svg";
+
+    // -------------------------- CONFIG --------------------------
+    
+    // dimensions
+    document.X = 600;
+    document.Y = 300;
+    
+    //* consider having the data written dynamically....
+    //* the data must be an Object with elements of the form 
+    //* <ID>(also displayed onscreen) : <array of relation coefficients 
+    //*      of the length of the elements in the data-object> 
+    //*      (this results in redundant symmetric matrix)
+    //*        - this is currently not used and could be empty arrays
+    //*  the first element will be the center-element
+    //* NB: currently a maximum of 7 elements will be displayed
+     
+    document.data = {"Archaeology":          [ 0, 92, 14, 35, 120, 22, 35, 37],
+                     "Bioacoustics":         [92,  0, 47, 53, 30, 33, 145, 47],
+                     "CURIE":                [14, 47,  0, 73, 40, 44, 55, 57],
+                     "Dermatology":          [35, 53, 73,  0, 50, 55, 65, 67],
+                     "Ethnology":            [20, 30, 40, 50,  0, 66, 75, 77],
+                     "Fricative consonant":  [22, 33, 44, 55, 66,  0, 85, 87],
+                     "Gauge theory":         [35, 45, 55, 65, 75, 85,  0, 97],
+                     "Hoffmann":             [37, 47, 57, 67, 77, 87,  97, 0]
+                    }
+      document.unicolor = false; //* set this to a color (array of 3 numbers(0-255)) 
+              //* you would like to be applied to all elements => [111,222,255]
+      //document.unicolor = [11,111,255];
+      document.overlay_color = [244,244,244]; //this color is applied to all overlay-areas
+      document.transparency = 0.5; // take a value between 0 and 1;
+      //* these 2 functions are mappings from the ids (keys of the upper object) to 
+      //* weblinks called upon the user clicking on an element
+      document.rewrite_ids_for_url = function(id){ return "http://localhost:8000/content_tags/search_by_tag?tag="+id}
+      document.rewrite_double_ids_for_url = function(idA,idB){return "http://localhost:8000/content_tags/search_by_tag?tags=" + [idA,idB].toSource()}
+      document.shift_click_fun = function(id){return "http://www." + id.replace(" ","") + ".com"};
+      document.shift_click_double_id_fun = function(idA,idB){return "http://www." + idA + idB + ".com"};
+      document.overlay_delimiter = "/";
+      //* this object can optionally hold alternative link-targets (click with ctrl-key pressed) 
+      //* don't forget to include URLs for overlayed areas (in alphabetical order) 
+      document.use_shift_click = true; //* turn off if you don't need it
+      document.use_ctrl_click = true; //* turn off if you don't need it
+      document.diagram_type = 'flagpole' //working options are: ["flower", "flagpole", "shelve"]
+      document.data_urls = {"Archaeology":["http://en.wikipedia.org/wiki/Archaeology"],
+                            "Bioacoustics":["http://en.wikipedia.org/wiki/Bioacoustics"],
+                            "CURIE":["http://en.wikipedia.org/wiki/CURIE"],
+                            "Dermatology":["http://en.wikipedia.org/wiki/Dermatology"],
+                            "Ethnology":["http://en.wikipedia.org/wiki/Ethnology"],
+                            "Gauge theory":["http://en.wikipedia.org/wiki/Gauge_theory"],
+                            "Fricative consonant":["http://en.wikipedia.org/wiki/Fricative_consonant"],
+                            "Archaeology/Bioacoustics":["http://google.com"]
+                            }
+        
+    
+    // -------------------------- INIT --------------------------
+    function init() {
+        var data = document.data;
+        sqos = prepare_square_positions(data,document.X,document.Y)    
+        //alert(sqos.toSource());
+        document.items = new Object();
+        var ovls = common_area_sweep(sqos,591);
+        //alert(ovls.toSource());
+                
+        for (var n=0;n < sqos.length; n++){
+            var wrapper = make_item(sqos[n]);
+            //var wrapper = make_item({color:cols[n], id:ids[n], x1:sqs[n][0][0], y1:sqs[n][0][1], x2:sqs[n][1][0], y2:sqs[n][1][1]});
+            document.getElementById( "top_level" ).appendChild( wrapper );
+        }
+        for (i in ovls){
+            //alert("overlay: " + ovls[i])
+            //alert(i.split(",").join(document.overlay_delimiter))
+            var obj_ = {color: document.overlay_color, 
+                        id: i.split(",").join(document.overlay_delimiter), 
+                        x1: ovls[i][0][0], y1: ovls[i][0][1], 
+                        x2: ovls[i][1][0], y2: ovls[i][1][1]
+                        };
+            var wrapper = make_item(obj_);
+            document.getElementById( "top_level" ).appendChild( wrapper );
+            document.items[i] = obj_;
+        }
+        // MONITOR - ELEMENT
+        var wrapper = document.createElementNS( SVG_NS, "g" );   
+        wrapper.setAttribute( "fill", "black" );
+        wrapper.setAttribute( "fill-opacity", "0.7" );
+        wrapper.setAttribute( "stroke", "black" );
+        wrapper.setAttribute( "stroke-width", "0.1" );
+        document.monitor = document.createElementNS(SVG_NS, "text");
+        document.monitor.setAttribute('font-size', "12")
+        document.monitor.setAttribute( "x", 10);
+        document.monitor.setAttribute( "y", 16);
+        wrapper.appendChild( document.monitor );
+        var newText = document.createTextNode("");
+        document.monitor.appendChild(newText);
+        document.getElementById( "top_level" ).appendChild( wrapper );
+    }
+
+    function make_rect(rect) {
+        //alert(rect.x2-rect.x1);
+        //alert(rect.id)
+        var rect_ = document.createElementNS( SVG_NS, "rect" );
+        rect_.setAttribute( "height", rect.y2 - rect.y1 );
+        rect_.setAttribute( "width", rect.x2 - rect.x1 );
+        rect_.setAttribute( "x", rect.x1.toString() );
+        rect_.setAttribute( "y", rect.y1.toString() );
+        return rect_;
+    }
+
+    function click_handler(event){
+        //alert(event.target.parentNode.id + "\ncolor: " + document.items[event.target.parentNode.id].color );
+        //alert(event.target.parentNode.id  +"'s click leads to: " + document.data_urls[event.target.parentNode.id][0]);
+        var split_ = event.target.parentNode.id.split(document.overlay_delimiter); 
+        if (document.use_ctrl_click && event.ctrlKey){
+            var key_ = (split_.length > 1 ? split_.sort().join(document.overlay_delimiter) : split_ )
+            if (window.parent)
+                window.parent.location = document.data_urls[key_][0];
+            else
+                window.location =  document.data_urls[event.target.parentNode.id][0];
+            return
+        }
+        if (document.use_ctrl_click && event.shiftKey){
+            var url = (split_.length > 1 ? document.shift_click_double_id_fun(split_[0],split_[1]) : document.shift_click_fun(event.target.parentNode.id))
+            if (window.parent)
+                window.parent.location =  url;
+            else
+                window.location =  url;
+            return
+        }
+        //var tag_ = (split.length > 1 ? [split[0],split[1]].toSource() : [event.target.parentNode.id].toSource())
+        var url = (split_.length > 1 ? document.rewrite_double_ids_for_url(split_[0],split_[1]) : document.rewrite_ids_for_url(event.target.parentNode.id))
+        if (window.parent)
+          window.parent.location = url ;
+        else
+          window.location = url ;
+    }
+
+    function make_item( item ) {
+        var wrapper = document.createElementNS( SVG_NS, "g" );
+        wrapper.setAttribute( "fill", "rgb("+ item.color.toString() +")" );
+        wrapper.setAttribute( "fill-opacity", document.transparency.toString() );
+        wrapper.setAttribute( "stroke", "black" );
+        wrapper.setAttribute( "stroke-width", "1" );
+        //wrapper.setAttribute( "onmouseover", 'set_color(this);' );
+        //wrapper.setAttribute( "onmouseout", 'unset_color(this);' );
+        wrapper.addEventListener( "mouseover", handle_over, false );
+        wrapper.addEventListener( "mouseout", handle_out, false );
+        wrapper.addEventListener( "click", click_handler, false );
+        //alert(item.id)
+        wrapper.setAttribute( "id", item.id );
+        document.items[item.id] = {id:item.id, color:item.color, area:[item.x1, item.y1, item.x2, item.y2]};
+        var rect = make_rect(item);
+        wrapper.appendChild( rect );
+        return( wrapper );
+    }
+
+    function sum_(arr){
+        res = 0;
+        for (i in arr){
+            res += arr[i]
+        }
+        return res
+    }
+    function max_(arr){
+        var max_int = 0;
+        var max_id;
+        for (i in arr){
+            if (arr[i][1] > max_int){
+                max_int = arr[i][1];
+                max_id = arr[i][0];
+            }
+        }
+        return [max_id,max_int]
+    }
+    function max_weight(arr){
+        var max_int = 0;
+        for (i in arr){
+            if (arr[i] > max_int){
+                max_int = arr[i];
+            }
+        }
+        return max_int
+    }
+
+
+    function get_keys(obj){
+        var arr = [];
+        for (i in obj){
+            arr.push(i)    
+        }
+        return arr
+    }
+
+    function randInt(max){
+        return Math.round(Math.random()*max);
+    }
+
+    function get_color(){
+        var col = (document.unicolor ? document.unicolor : [randInt(255),randInt(255),randInt(255)])
+        return col
+    }
+    
+    // returns the position for the data-elements
+    // needs dimensions in X and Y 
+    function prepare_square_positions(data,X,Y){
+        //alert(data);
+        //alert($('#mainscript'))
+        sum_arr = []
+        for (it in data){
+            sum_arr.push([it,sum_(data[it])]);
+            //alert(data[it]["aaa"]);
+        } 
+        //alert("sum_arr:" + sum_arr.toSource());
+        //alert("max:" + max_(sum_arr).toSource());
+        //alert("ergo:" + data[max_(sum_arr)[0]]);
+        c_key =  max_(sum_arr)[0];
+
+       // alert(get_keys(data));
+        num_its = get_keys(data).length;
+        res_arr = [];
+        if (document.diagram_type == 'flower'){
+        if (num_its == 1){
+            for (i in data){
+                res_arr.push({id:i, x1:X/3, y1:Y/3,x2:2*X/3,y2:2*Y/3,color:get_color()})
+            } 
+        } else if (num_its == 2){
+            var counter = 0;
+            for (i in data){
+                if (counter == 0)
+                    res_arr.push({id:i, x1:Math.round(0.2 * X), y1:0.2 * Y, x2: Math.round(0.6* X), y2:0.8 * Y,color:get_color()});
+                else if (counter == 1)
+                    res_arr.push({id:i, x1:Math.round(0.4 * X), y1:0.2 * Y, x2: Math.round(0.8 * X), y2:0.8 * Y,color:get_color()});
+            counter++;
+            } 
+                
+        } else if (num_its == 3){
+            var counter = 0;
+            for (i in data){
+                // first centered up
+                if (counter == 0)
+                    res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.3 * Y, x2: Math.round(0.9 * X), y2:0.7*Y,color:get_color()});
+                // second left down
+                else if (counter == 1)
+                    res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.1 * Y, x2: Math.round(0.9 * X), y2:0.4*Y,color:get_color()});
+                else if (counter == 2)
+                    res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.6 * Y, x2: Math.round(0.9 * X), y2:0.9*Y,color:get_color()});
+            counter++;
+            } 
+        } else if (num_its == 4){
+            var counter = 0;
+            for (i in data){
+                // first centered
+                if (counter == 0)
+                    res_arr.push({id:i, x1: Math.round(0.2 * X), y1:0.3 * Y, x2:Math.round(0.8 * X), y2: 0.7*Y,color:get_color()});
+                // second left up
+                else if (counter == 1)
+                    res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.1 * Y, x2: Math.round(0.4 * X), y2:(0.4 * Y),color:get_color()});
+                // third right up
+                else if (counter == 2)
+                    res_arr.push({id:i, x1: Math.round(0.6 * X), y1:0.1 * Y, x2: Math.round(0.9 *X), y2: 0.4 * Y,color:get_color()});
+                // forth centered down
+                else if (counter == 3)
+                    res_arr.push({id:i, x1: Math.round(0.3 * X), y1:0.6 * Y, x2: Math.round(0.7 * X), y2: 0.9 * Y,color:get_color()});
+                counter++
+            }     
+        } else if (num_its == 5){
+            var counter = 0;
+            for (i in data){
+                // first centered
+                if (counter == 0)
+                    res_arr.push({id:i, x1:Math.round(0.2*X), y1:0.2 * Y, x2:Math.round(0.8*X), y2:0.8*Y,color:get_color()});
+                // second left down
+                else if (counter == 1)
+                    res_arr.push({id:i, x1:Math.round(0.1 * X), y1:0.6 * Y, x2:Math.round(0.4 * X), y2:(0.9*Y),color:get_color()});
+                // third left up
+                else if (counter == 2)
+                    res_arr.push({id:i, x1:Math.round(0.1 * X), y1:0.1 * Y, x2:Math.round(0.4 * X), y2:(0.4 * Y),color:get_color()});
+                // fourth right up
+                else if (counter == 3)
+                    res_arr.push({id:i, x1:Math.round(0.6 * X), y1:0.1 * Y, x2:Math.round(0.9 * X), y2:(0.4 * Y),color:get_color()});
+                // fifth right down
+                else if (counter == 4)
+                    res_arr.push({id:i, x1:Math.round(0.6 * X), y1:0.6 * Y, x2:Math.round(0.9 * X), y2: 0.9 * Y,color:get_color()});
+                counter++
+            }     
+         } else if (num_its == 6){
+            var counter = 0;
+            for (i in data){
+                // first centered
+                if (counter == 0)
+                    res_arr.push({id:i, x1:Math.round(0.2 * X), y1:0.3 * Y, x2:Math.round(0.8 * X), y2:0.7 * Y,color:get_color()});
+                // second left down
+                else if (counter == 1)
+                    res_arr.push({id:i, x1:Math.round(0.12 * X), y1:(Y/2)+10, x2: Math.round(0.48 * X), y2:(0.9*Y),color:get_color()});
+                // third left up
+                else if (counter == 2)
+                    res_arr.push({id:i, x1:Math.round( 0.1 * X), y1:0.1 * Y, x2: Math.round( 0.35 *  X), y2:0.4 *Y,color:get_color()});
+                // fourth centered up
+                if (counter == 3)
+                    res_arr.push({id:i, x1: Math.round(0.38 * X) , y1: 0.08 * Y, x2: 0.62 * X, y2: 0.45*Y,color:get_color()});
+                // fifth right up
+                else if (counter == 4)
+                    res_arr.push({id:i, x1:Math.round( 0.65 * X), y1:0.1 * Y, x2: 0.9 * X, y2:0.4 * Y,color:get_color()});
+                // sixth right down
+                else if (counter == 5)
+                    res_arr.push({id:i, x1:Math.round(0.52 * X), y1:(Y/2) + 10, x2:Math.round(0.88*X), y2:0.9*Y,color:get_color()});
+                counter++
+            }     
+        } else if (num_its == 7 || num_its > 7){
+            var counter = 0;
+            for (i in data){
+                // first centered
+                if (counter == 0)
+                    res_arr.push({id:i, x1: Math.round(0.2 * X), y1: 0.3 * Y, x2: Math.round(0.8 * X), y2:0.7 * Y,color:get_color()});
+                // second left down
+                else if (counter == 1)
+                    res_arr.push({id:i, x1:Math.round( 0.1 * X), y1:(0.52 * Y), x2:Math.round( 0.39 * X), y2:(0.8 * Y),color:get_color()});
+                // third left up
+                else if (counter == 2)
+                    res_arr.push({id:i, x1: Math.round(0.1 * X), y1: 0.2 * Y, x2: Math.round( 0.39 * X), y2: 0.48 * Y,color:get_color()});
+                // fourth centered up
+                if (counter == 3)
+                    res_arr.push({id:i, x1: Math.round(0.41 * X) , y1: 0.1 * Y, x2: Math.round(0.59 * X), y2: 0.4*Y,color:get_color()});
+                // fifth right up
+                else if (counter == 4)
+                    res_arr.push({id:i, x1: Math.round(0.61 * X), y1:0.2 *Y, x2: 0.9 * X, y2:0.48 * Y,color:get_color()});
+                // sixth right down
+                else if (counter == 5)
+                    res_arr.push({id:i, x1: 0.61 * X, y1:0.52 * Y, x2:0.9 * X, y2: 0.8 * Y,color:get_color()});
+                // seventh centered down
+                else if (counter == 6)
+                    res_arr.push({id:i, x1: Math.round(0.41 * X), y1: 0.6*Y, x2: Math.round(0.59 * X), y2:0.9 * Y,color:get_color()});
+                counter++
+            }     
+        }
+        return res_arr
+        } else if (document.diagram_type == 'flagpole'){
+            var counter = 0;
+            // first set vertical column of center-field
+            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(0.3 * X), y2: Y,color:get_color()});
+            var keys =get_keys(data).slice(1); 
+            weight_arr = data[get_keys(data)[0]].slice(1)
+            w_sum = sum_(weight_arr);
+            //alert(weight_arr)
+            Y_counter = 0.0 * Y
+                    
+            for (i in keys){
+                // first the horizontal items
+                if (counter < num_its) {
+                    Y_offset = ((Y * 1.0/ w_sum ) * weight_arr[i]) * 0.88
+                    //alert(Y_offset)
+                    res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: Y_counter, x2: Math.round(0.8 * X), y2: Y_counter + Y_offset,color:get_color()});
+                    Y_counter = (Y_counter + Y_offset) + Y *  0.018
+                }
+                counter++    
+            }
+            return res_arr
+        } else if (document.diagram_type == 'shelve'){
+            var overlay_border = 0.23;
+            var left_border = 0.33;
+            var right_border = 0.66; 
+            var counter = 0;
+            var weight_arr_1 = data[get_keys(data)[0]].slice(2)
+            var weight_arr_2 = data[get_keys(data)[1]].slice(2)
+            var max_1 = max_weight(weight_arr_1);
+            var max_2 = max_weight(weight_arr_2);
+            //alert(max_1 + ":" +max_2)
+            // first set vertical column of both center-fields
+            res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(left_border * X), y2: 1.0 * Y,color:get_color()});
+            var keys = get_keys(data).slice(2); 
+            for (i in keys){
+                var offset_1 = (overlay_border / max_1) * weight_arr_1[i]
+                //alert(offset_1);
+                var offset_2 = (overlay_border / max_2) * weight_arr_2[i]
+                var X_left_off = left_border - offset_1;
+                var X_right_off = right_border + offset_2;
+                // first the horizontal items
+                if (counter < num_its) {
+                    res_arr.push({id: keys[i], 
+                                  x1: Math.round(X_left_off * X), 
+                                  y1: (Y / (num_its - 1)) * (counter + 0.8) - 0.02 * Y, 
+                                  x2: Math.round(X_right_off * X), 
+                                  y2: (Y / (num_its-1)) * (counter + 1.6) - 0.02 *Y,
+                                  color:get_color()});
+                }
+                counter++    
+            }
+            res_arr.push({id:get_keys(data)[1], x1: Math.round(right_border * X), y1: 0.0 * Y , x2: Math.round(0.9 * X), y2: 1.0 * Y,color:get_color()});
+            return res_arr
+    }
+
+}
+
+    
+    
+
+    function handle_over( event ) {
+        var hit = []
+        var pos = {x:event.pageX, y: event.pageY};
+        //alert(event.target.parentNode.id)
+        document.monitor.childNodes[0].data = event.target.parentNode.id //.split(",").join("/"); 
+        //alert(event.target.parentNode.getAttribute('fill'));
+        //alert(document.items[event.target.parentNode.id].color);
+        event.target.parentNode.setAttribute( 'fill', 'rgb(' + complementary_color(document.items[event.target.parentNode.id].color).toString() +')');
+        //event.setAttribute( 'fill', 'blue' );
+    }
+    
+    function handle_out( event ) {
+        //alert(event.target.parentNode.id)
+        document.monitor.childNodes[0].data = ""; 
+        //event.target.parentNode.setAttribute( 'fill', 'rgb('+ document.items[event.target.parentNode.id].color.toString() +')' );
+        event.target.parentNode.setAttribute( 'fill', 'rgb(255,255,255)');
+        for (e in document.items){
+            document.getElementById(document.items[e].id).setAttribute('fill','rgb('+ document.items[e].color.toString() +')')
+        }
+
+    }
+
+    function common_area_sweep(all, max){
+        all = all.sort(function(a, b){return a.x1 > b.x1})
+        //alert("all_sorted:" + all.toSource());
+        c = 0
+        resSi = {}
+        resDou = {}
+        for (var i = 0; i <= max; i++){
+            for (o in all){
+                if (all[o].x1 == i){
+                    for (r in resSi){
+                        //alert("y-range: " + resSi[r][0] + " to " + resSi[r][1] +"\ntesting: " + all[o].id);
+
+                        //// check if one of the vertices of the newly detected x1 lies inside the y-range of the already registered OR the other way round
+                        if (((resSi[r][0] <= all[o].y1 && all[o].y1 <= resSi[r][1]) || (resSi[r][0] <= all[o].y2 && all[o].y2 <= resSi[r][1])) || (all[o].y1 <= resSi[r][0] && resSi[r][1] <= all[o].y2)){
+                            resDou[[r, all[o].id]] = [[all[o].x1, (all[o].y1 > resSi[r][0] ? all[o].y1 : resSi[r][0])], [all[o].x2, all[o].y2]]
+                            //alert("overlay: " + resDou.toSource())
+                        }
+                    }
+                    resSi[all[o].id] = [all[o].y1,all[o].y2]
+                } else if (all[o].x2 == i){
+                    //alert("end detected");
+                    //alert(all[o].id);
+                    for (r in resDou){
+                        var one = r.split(",")[0]
+                        var two = r.split(",")[1]
+                        if ((one == all[o].id || two == all[o].id)){// && resDou[r][2] != "complete"){
+                            //alert("finishing");
+                            resDou[r][1] = [(resDou[r][1][0] > all[o].x2 && all[o].x2 > resDou[r][0][0] ? all[o].x2 : resDou[r][1][0]),
+                                            (resDou[r][1][1] > all[o].y2 && all[o].y2 > resDou[r][0][1] ? all[o].y2 : resDou[r][1][1])]
+                            //alert(resDou[r]);
+                        }
+                    }
+                    delete resSi[all[o].id];
+                }
+            c += 1
+            }    
+        }    
+        return resDou
+    }
+
+    function complementary_color(color){
+        //color should be a list of three values between 0 and 255;
+        res = []
+        for (i in color){
+            res.push(color[i] > 127 ? randInt(64) : randInt(64) + 191)
+        }
+        return res
+  }
+]]></script>
+<g id="top_level" transform="translate(0, 0)" />
+</svg>
