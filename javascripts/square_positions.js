@@ -43,7 +43,7 @@ function common_area_sweep(all, max){
 // needs  X and Y dimensions
 function prepare_square_positions(data, X, Y){
     //console.log(data);
-    sum_arr = []
+    var sum_arr = []
 
     // sum all weights
     for (it in data){
@@ -56,11 +56,11 @@ function prepare_square_positions(data, X, Y){
     //console.log("ergo:" + data[max_(sum_arr)[0]]);
 
     var all_keys = get_keys(data);
-    c_key =  max_(sum_arr)[0]; // key of the heaviest element
+    var c_key =  max_(sum_arr)[0]; // key of the heaviest element
 
     // console.log(all_keys);
     num_its = all_keys.length;
-    res_arr = [];
+    var res_arr = [];
     var edge_positions = {'flower':{1: {0: {x1:0.333, x2:0.666, y1:0.33, y2:0.666}},
                                     2: {0: {x1:0.2, x2:0.6, y1:0.2, y2:0.8},
                                         1: {x1:0.4, x2:0.8, y1:0.2, y2:0.8}},
@@ -143,25 +143,33 @@ function prepare_square_positions(data, X, Y){
         }
         return res_arr
     } else if (document.diagram_type == 'shelve'){
+        // shelve mode takes the first two elements of the data array
+        // as lateral columns
         var overlay_border = 0.23;
-        var left_border = 0.33;
-        var right_border = 0.66;
+        var left_border = 0.34;
+        var right_border = 1 - left_border;
         var counter = 0;
         var weight_arr_1 = data[all_keys[0]].slice(2)
         var weight_arr_2 = data[all_keys[1]].slice(2)
         var max_1 = max_weight(weight_arr_1);
         var max_2 = max_weight(weight_arr_2);
-        //alert(max_1 + ":" +max_2)
-        // first set vertical column of both center-fields
-        res_arr.push({id:all_keys[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(left_border * X), y2: 1.0 * Y,color:get_color()});
+        //console.log(max_1 + ":" +max_2)
+        // first put the left column.
+        res_arr.push({
+            id: all_keys[0],
+            x1: Math.round(0.1 * X),
+            y1: 0.0 * Y ,
+            x2: Math.round(left_border * X),
+            y2: 1.0 * Y,
+            color: get_color()});
         var keys = all_keys.slice(2);
+        // put horizontal columns
         for (i in keys){
             var offset_1 = (overlay_border / max_1) * weight_arr_1[i]
-            //alert(offset_1);
+            //console.log(offset_1);
             var offset_2 = (overlay_border / max_2) * weight_arr_2[i]
             var X_left_off = left_border - offset_1;
             var X_right_off = right_border + offset_2;
-            // first the horizontal items
             if (counter < num_its) {
                 res_arr.push({id: keys[i],
                               x1: Math.round(X_left_off * X),
@@ -172,12 +180,14 @@ function prepare_square_positions(data, X, Y){
             }
             counter++
         }
-        res_arr.push({id:all_keys[1], x1: Math.round(right_border * X), y1: 0.0 * Y , x2: Math.round(0.9 * X), y2: 1.0 * Y,color:get_color()});
+        // finally put the right column.
+        res_arr.push({
+            id: all_keys[1],
+            x1: Math.round(right_border * X),
+            y1: 0.0 * Y ,
+            x2: Math.round(0.9 * X),
+            y2: 1.0 * Y,
+            color: get_color()});
         return res_arr
+    }
 }
-
-}
-
-
-
-
