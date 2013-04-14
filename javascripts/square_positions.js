@@ -50,7 +50,7 @@ function prepare_square_positions(data, X, Y){
         sum_arr.push([it, sum_(data[it])]);
         //alert(data[it]["aaa"]);
     }
-    
+
     //console.log("sum_arr:" + sum_arr.toSource());
     //console.log("max:" + max_(sum_arr).toSource());
     //console.log("ergo:" + data[max_(sum_arr)[0]]);
@@ -112,19 +112,31 @@ function prepare_square_positions(data, X, Y){
     } else if (document.diagram_type == 'flagpole'){
         var counter = 0;
         // first set vertical column of center-field
-        res_arr.push({id:all_keys[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(0.3 * X), y2: Y,color:get_color()});
-        var keys =all_keys.slice(1);
-        weight_arr = data[all_keys[0]].slice(1)
-        w_sum = sum_(weight_arr);
-        //alert(weight_arr)
-        Y_counter = 0.0 * Y
+        res_arr.push({id:all_keys[0],
+                      x1: Math.round(0.1 * X),
+                      y1: 0.0 * Y ,
+                      x2: Math.round(0.3 * X),
+                      y2: Y,
+                      color:get_color()});
+        var keys = all_keys.slice(1);
+        var weight_arr = data[all_keys[0]].slice(1)
+        var w_sum = sum_(weight_arr);
+        //console.log(weight_arr)
+        var Y_counter = 0.01 * Y
 
         for (i in keys){
-            // first the horizontal items
+            // then the horizontal items
             if (counter < num_its) {
-                Y_offset = ((Y * 1.0/ w_sum ) * weight_arr[i]) * 0.88
-                //alert(Y_offset)
-                res_arr.push({id:keys[i], x1: Math.round(0.2 * X), y1: Y_counter, x2: Math.round(0.8 * X), y2: Y_counter + Y_offset,color:get_color()});
+                var Y_offset =  ((Y * 1.0/ w_sum ) * weight_arr[i]) * 0.87
+                //console.log(Y_offset)
+                res_arr.push({
+                     id: keys[i],
+                     x1: Math.round(0.2 * X),
+                     y1: Y_counter,
+                     x2: Math.round(0.8 * X),
+                     y2: Y_counter + Y_offset,
+                     color: get_color()
+                });
                 Y_counter = (Y_counter + Y_offset) + Y *  0.018
             }
             counter++
