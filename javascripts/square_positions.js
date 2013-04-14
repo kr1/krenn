@@ -1,4 +1,3 @@
-// assembles and returns a rect_ object from a rect object
 function common_area_sweep(all, max){
     all = all.sort(function(a, b){return a.x1 > b.x1})
     //alert("all_sorted:" + all.toSource());
@@ -43,142 +42,79 @@ function common_area_sweep(all, max){
 // returns the position for the data-elements
 // needs  X and Y dimensions
 function prepare_square_positions(data, X, Y){
-    //alert(data);
-    //alert($('#mainscript'))
+    //console.log(data);
     sum_arr = []
+
+    // sum all weights
     for (it in data){
         sum_arr.push([it, sum_(data[it])]);
         //alert(data[it]["aaa"]);
     }
-    //alert("sum_arr:" + sum_arr.toSource());
-    //alert("max:" + max_(sum_arr).toSource());
-    //alert("ergo:" + data[max_(sum_arr)[0]]);
-    c_key =  max_(sum_arr)[0];
+    
+    //console.log("sum_arr:" + sum_arr.toSource());
+    //console.log("max:" + max_(sum_arr).toSource());
+    //console.log("ergo:" + data[max_(sum_arr)[0]]);
 
-   // alert(get_keys(data));
-    num_its = get_keys(data).length;
+    var all_keys = get_keys(data);
+    c_key =  max_(sum_arr)[0]; // key of the heaviest element
+
+    // console.log(all_keys);
+    num_its = all_keys.length;
     res_arr = [];
+    var edge_positions = {'flower':{1: {0: {x1:0.333, x2:0.666, y1:0.33, y2:0.666}},
+                                    2: {0: {x1:0.2, x2:0.6, y1:0.2, y2:0.8},
+                                        1: {x1:0.4, x2:0.8, y1:0.2, y2:0.8}},
+                                    3: {0: {x1: 0.1, y1:0.3, x2:0.9, y2:0.7},
+                                        1: {x1:0.1, y1:0.1, x2:0.9, y2:0.4},
+                                        2: {x1: 0.1, y1: 0.6 , x2:0.9, y2:0.9}},
+                                    4: {O: {x1:0.2, y1:0.3, x2:0.8, y2: 0.7},
+                                        1: {x1: 0.1, y1: 0.1, x2: 0.4, y2: 0.4},
+                                        2: {x1: 0.6, y1:0.1, x2: 0.9, y2:0.4},
+                                        3: {x1:0.3, y1:0.6, x2: 0.7, y2: 0.9}},
+                                    5: {0: {x1: 0.2, y1: 0.2, x2: 0.8, y2: 0.8},
+                                        1: {x1: 0.1, y1: 0.6, x2: 0.4, y2: 0.9},
+                                        2: {x1: 0.1, y1: 0.1, x2: 0.4, y2: 0.4},
+                                        3: {x1: 0.6, y1: 0.1, x2: 0.9, y2: 0.},
+                                        4: {x1:0.6, y1:0.6, x2: 0.9, y2: 0.9}},
+                                    6: {0: {x1: 0.2, y1:0.3, x2:0.8, y2:0.7},
+                                        1: {x1: 0.12, y1: "0.5 * Y + 10", x2: 0.48, y2: 0.9},
+                                        2: {x1:0.1, y1:0.1, x2: 0.35, y2:0.4},
+                                        3: {x1: 0.38, y1: 0.08, x2: 0.62, y2: 0.45},
+                                        4: {x1: 0.65, y1:0.1, x2: 0.9, y2:0.4},
+                                        5: {x1: 0.52, y1: "0.5 * Y + 10", x2: 0.88, y2:0.9}},
+                                    7: {0: {x1: 0.2, y1: 0.3, x2: 0.8, y2:0.7},
+                                        1: {x1: 0.1, y1: 0.52, x2: 0.39, y2: 0.8},
+                                        2: {x1: 0.1, y1: 0.2, x2: 0.39, y2: 0.48},
+                                        3: {x1: 0.41, y1: 0.1, x2: 0.59, y2: 0.4},
+                                        4: {x1: 0.61, y1:0.2, x2: 0.9, y2: 0.48},
+                                        5: {x1: 0.61, y1: 0.52, x2:0.9, y2: 0.8},
+                                        6: {x1: 0.41, y1: 0.6, x2: 0.59, y2: 0.9}}
+                                   }
+                         }
     if (document.diagram_type == 'flower'){
-    if (num_its == 1){
-        for (i in data){
-            res_arr.push({id:i, x1:X/3, y1:Y/3, x2:2*X/3, y2:2*Y/3, color:get_color()})
-        }
-    } else if (num_its == 2){
-        var counter = 0;
-        for (i in data){
-            if (counter == 0)
-                res_arr.push({id:i, x1:Math.round(0.2 * X), y1:0.2 * Y, x2: Math.round(0.6* X), y2:0.8 * Y, color:get_color()});
-            else if (counter == 1)
-                res_arr.push({id:i, x1:Math.round(0.4 * X), y1:0.2 * Y, x2: Math.round(0.8 * X), y2:0.8 * Y, color:get_color()});
-        counter++;
-        }
-    } else if (num_its == 3){
-        var counter = 0;
-        for (i in data){
-            // first centered up
-            if (counter == 0)
-                res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.3 * Y, x2: Math.round(0.9 * X), y2:0.7*Y,color:get_color()});
-            // second left down
-            else if (counter == 1)
-                res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.1 * Y, x2: Math.round(0.9 * X), y2:0.4*Y,color:get_color()});
-            else if (counter == 2)
-                res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.6 * Y, x2: Math.round(0.9 * X), y2:0.9*Y,color:get_color()});
-        counter++;
-        }
-    } else if (num_its == 4){
-        var counter = 0;
-        for (i in data){
-            // first centered
-            if (counter == 0)
-                res_arr.push({id:i, x1: Math.round(0.2 * X), y1:0.3 * Y, x2:Math.round(0.8 * X), y2: 0.7*Y,color:get_color()});
-            // second left up
-            else if (counter == 1)
-                res_arr.push({id:i, x1: Math.round(0.1 * X), y1:0.1 * Y, x2: Math.round(0.4 * X), y2:(0.4 * Y),color:get_color()});
-            // third right up
-            else if (counter == 2)
-                res_arr.push({id:i, x1: Math.round(0.6 * X), y1:0.1 * Y, x2: Math.round(0.9 *X), y2: 0.4 * Y,color:get_color()});
-            // forth centered down
-            else if (counter == 3)
-                res_arr.push({id:i, x1: Math.round(0.3 * X), y1:0.6 * Y, x2: Math.round(0.7 * X), y2: 0.9 * Y,color:get_color()});
-            counter++
-        }
-    } else if (num_its == 5){
-        var counter = 0;
-        for (i in data){
-            // first centered
-            if (counter == 0)
-                res_arr.push({id:i, x1:Math.round(0.2*X), y1:0.2 * Y, x2:Math.round(0.8*X), y2:0.8*Y,color:get_color()});
-            // second left down
-            else if (counter == 1)
-                res_arr.push({id:i, x1:Math.round(0.1 * X), y1:0.6 * Y, x2:Math.round(0.4 * X), y2:(0.9*Y),color:get_color()});
-            // third left up
-            else if (counter == 2)
-                res_arr.push({id:i, x1:Math.round(0.1 * X), y1:0.1 * Y, x2:Math.round(0.4 * X), y2:(0.4 * Y),color:get_color()});
-            // fourth right up
-            else if (counter == 3)
-                res_arr.push({id:i, x1:Math.round(0.6 * X), y1:0.1 * Y, x2:Math.round(0.9 * X), y2:(0.4 * Y),color:get_color()});
-            // fifth right down
-            else if (counter == 4)
-                res_arr.push({id:i, x1:Math.round(0.6 * X), y1:0.6 * Y, x2:Math.round(0.9 * X), y2: 0.9 * Y,color:get_color()});
-            counter++
-        }
-     } else if (num_its == 6){
-        var counter = 0;
-        for (i in data){
-            // first centered
-            if (counter == 0)
-                res_arr.push({id:i, x1:Math.round(0.2 * X), y1:0.3 * Y, x2:Math.round(0.8 * X), y2:0.7 * Y,color:get_color()});
-            // second left down
-            else if (counter == 1)
-                res_arr.push({id:i, x1:Math.round(0.12 * X), y1:(Y/2)+10, x2: Math.round(0.48 * X), y2:(0.9*Y),color:get_color()});
-            // third left up
-            else if (counter == 2)
-                res_arr.push({id:i, x1:Math.round( 0.1 * X), y1:0.1 * Y, x2: Math.round( 0.35 *  X), y2:0.4 *Y,color:get_color()});
-            // fourth centered up
-            if (counter == 3)
-                res_arr.push({id:i, x1: Math.round(0.38 * X) , y1: 0.08 * Y, x2: 0.62 * X, y2: 0.45*Y,color:get_color()});
-            // fifth right up
-            else if (counter == 4)
-                res_arr.push({id:i, x1:Math.round( 0.65 * X), y1:0.1 * Y, x2: 0.9 * X, y2:0.4 * Y,color:get_color()});
-            // sixth right down
-            else if (counter == 5)
-                res_arr.push({id:i, x1:Math.round(0.52 * X), y1:(Y/2) + 10, x2:Math.round(0.88*X), y2:0.9*Y,color:get_color()});
-            counter++
-        }
-    } else if (num_its == 7 || num_its > 7){
-        var counter = 0;
-        for (i in data){
-            // first centered
-            if (counter == 0)
-                res_arr.push({id:i, x1: Math.round(0.2 * X), y1: 0.3 * Y, x2: Math.round(0.8 * X), y2:0.7 * Y,color:get_color()});
-            // second left down
-            else if (counter == 1)
-                res_arr.push({id:i, x1:Math.round( 0.1 * X), y1:(0.52 * Y), x2:Math.round( 0.39 * X), y2:(0.8 * Y),color:get_color()});
-            // third left up
-            else if (counter == 2)
-                res_arr.push({id:i, x1: Math.round(0.1 * X), y1: 0.2 * Y, x2: Math.round( 0.39 * X), y2: 0.48 * Y,color:get_color()});
-            // fourth centered up
-            if (counter == 3)
-                res_arr.push({id:i, x1: Math.round(0.41 * X) , y1: 0.1 * Y, x2: Math.round(0.59 * X), y2: 0.4*Y,color:get_color()});
-            // fifth right up
-            else if (counter == 4)
-                res_arr.push({id:i, x1: Math.round(0.61 * X), y1:0.2 *Y, x2: 0.9 * X, y2:0.48 * Y,color:get_color()});
-            // sixth right down
-            else if (counter == 5)
-                res_arr.push({id:i, x1: 0.61 * X, y1:0.52 * Y, x2:0.9 * X, y2: 0.8 * Y,color:get_color()});
-            // seventh centered down
-            else if (counter == 6)
-                res_arr.push({id:i, x1: Math.round(0.41 * X), y1: 0.6*Y, x2: Math.round(0.59 * X), y2:0.9 * Y,color:get_color()});
-            counter++
-        }
-    }
-    return res_arr
+      // flower mode accepts a maximum of 7 elements
+      num_its = num_its > 7 ? 7 : num_its;
+      var names = get_keys(data);
+      var  edges = edge_positions['flower'][num_its];
+      for (var idx = 0; idx < num_its; idx++){
+          var item_edges = edges[idx]
+          //console.log(item_edges);
+          res_arr.push({id: names[idx],
+                        x1: Math.round(item_edges.x1 * X),
+                        x2: Math.round(item_edges.x2 * X),
+                        y1: Math.round(typeof(item_edges.y1) == "string" ? eval(item_edges.y1) : item_edges.y1 * Y),
+                        y2: Math.round(item_edges.y2 * Y),
+                        color: get_color()
+                       }
+                      )
+      }
+      return res_arr
     } else if (document.diagram_type == 'flagpole'){
         var counter = 0;
         // first set vertical column of center-field
-        res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(0.3 * X), y2: Y,color:get_color()});
-        var keys =get_keys(data).slice(1);
-        weight_arr = data[get_keys(data)[0]].slice(1)
+        res_arr.push({id:all_keys[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(0.3 * X), y2: Y,color:get_color()});
+        var keys =all_keys.slice(1);
+        weight_arr = data[all_keys[0]].slice(1)
         w_sum = sum_(weight_arr);
         //alert(weight_arr)
         Y_counter = 0.0 * Y
@@ -199,14 +135,14 @@ function prepare_square_positions(data, X, Y){
         var left_border = 0.33;
         var right_border = 0.66;
         var counter = 0;
-        var weight_arr_1 = data[get_keys(data)[0]].slice(2)
-        var weight_arr_2 = data[get_keys(data)[1]].slice(2)
+        var weight_arr_1 = data[all_keys[0]].slice(2)
+        var weight_arr_2 = data[all_keys[1]].slice(2)
         var max_1 = max_weight(weight_arr_1);
         var max_2 = max_weight(weight_arr_2);
         //alert(max_1 + ":" +max_2)
         // first set vertical column of both center-fields
-        res_arr.push({id:get_keys(data)[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(left_border * X), y2: 1.0 * Y,color:get_color()});
-        var keys = get_keys(data).slice(2);
+        res_arr.push({id:all_keys[0], x1: Math.round(0.1 * X), y1: 0.0 * Y , x2: Math.round(left_border * X), y2: 1.0 * Y,color:get_color()});
+        var keys = all_keys.slice(2);
         for (i in keys){
             var offset_1 = (overlay_border / max_1) * weight_arr_1[i]
             //alert(offset_1);
@@ -224,7 +160,7 @@ function prepare_square_positions(data, X, Y){
             }
             counter++
         }
-        res_arr.push({id:get_keys(data)[1], x1: Math.round(right_border * X), y1: 0.0 * Y , x2: Math.round(0.9 * X), y2: 1.0 * Y,color:get_color()});
+        res_arr.push({id:all_keys[1], x1: Math.round(right_border * X), y1: 0.0 * Y , x2: Math.round(0.9 * X), y2: 1.0 * Y,color:get_color()});
         return res_arr
 }
 

@@ -1,3 +1,4 @@
+// assembles and returns a rect_ object from a rect object
 function make_rect(rect) {
     //alert(rect.x2-rect.x1);
     //alert(rect.id)
